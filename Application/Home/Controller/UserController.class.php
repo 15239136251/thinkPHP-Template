@@ -18,8 +18,8 @@ class UserController extends RestController {
     }
 
     // 查询单个
-    public function detail($parId = '') {
-        $id = $parId ? $parId : I("id");
+    public function detail() {
+        $id = I("id");
         if ($id) {
             resp_success($this->user->getDetail($id));
         } else {
@@ -41,9 +41,8 @@ class UserController extends RestController {
             } else {
                 $params["create_time"] = date("Y-m-d H:i:s");
                 $params["modify_time"] = date("Y-m-d H:i:s");
-                $User->create($params);
-                $lastId = $User->add();
-                $result = $this->detail($lastId);
+                $lastId = $this->user->add($params);
+                $result = $this->user->getDetail($id);
                 json_out(100, "新增成功!", $result);
             }
         } else {

@@ -13,4 +13,10 @@ class UserModel extends Model{
         $data = $this->where("id = {$id} AND is_active = 'Y'")->find();
         return $data;
     }
+
+    function add($params) {
+        $this->create($params);
+        $lastId = $this->add();
+        return $lastId;
+    }
 }
