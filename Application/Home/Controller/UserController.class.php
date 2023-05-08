@@ -2,28 +2,26 @@
 namespace Home\Controller;
 use Think\Controller\RestController;
 
+use Home\Model\UserModel;
+
 class UserController extends RestController {
 	protected $allowMethod = array('get','post','put'); // REST允许的请求类型列表
     protected $allowType = array('json'); // REST允许请求的资源类型列表
+    private $user;
+    public function __construct(){ 
+        $this->user = new UserModel();
+    } 
     
     // 列表
     public function list() {
-        // 实例化 User 对象
-        $User = M("User");
-        $data = $User->where("is_active = 'Y'")->select();
-        resp_success($data);
+        resp_success($this->user->getList());
     }
 
     // 查询单个
     public function detail($parId = '') {
         $id = $parId ? $parId : I("id");
         if ($id) {
-            // 实例化 User 对象
-            $User = M("User");
-            $where['is_active'] ="Y";
-            $where['id'] = $id;
-            $data = $User->where($where)->find();
-            resp_success($data);
+            resp_success($this->user->getDetail($id));
         } else {
             resp_error(0, "请传递需要查询的id");
         }
