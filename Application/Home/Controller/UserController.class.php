@@ -3,6 +3,8 @@ namespace Home\Controller;
 use Home\Controller\CommonController;
 
 class UserController extends CommonController {
+    private $keys = array('id', 'username');
+
     function _initialize() {
         parent::_initialize();
     }
@@ -10,7 +12,9 @@ class UserController extends CommonController {
     // 列表
     public function list() {
         $where['is_active'] ="Y";
-        resp_success($this->user->getList($where));
+        $page['pageSize'] = I('pageSize') ? I('pageSize') : 10;
+        $page['page'] = I('page') ? I('page') : 1;
+        resps_success($this->user->getList($where, $page), $page['page'], $page['pageSize']);
     }
 
     // 查询单个

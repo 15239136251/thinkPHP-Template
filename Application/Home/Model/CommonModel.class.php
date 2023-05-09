@@ -3,8 +3,9 @@ namespace Home\Model;
 use Think\Model;
 
 class CommonModel extends Model{
-    function getList($where) {
-        $data = $this->where($where)->select();
+    function getList($where, $page) {
+        $row = ($page['page'] - 1) * $page['pageSize'];
+        $data = $this->where($where)->limit($row.','.$page['pageSize'])->select();
         return $data;
     }
 
