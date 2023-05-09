@@ -1,20 +1,16 @@
 <?php
 namespace Home\Controller;
-use Think\Controller\RestController;
+use Home\Controller\CommonController;
 
-use Home\Model\UserModel;
+class UserController extends CommonController {
+    function _initialize() {
+        parent::_initialize();
+    }
 
-class UserController extends RestController {
-	protected $allowMethod = array('get','post','put'); // REST允许的请求类型列表
-    protected $allowType = array('json'); // REST允许请求的资源类型列表
-    private $user;
-    public function __construct(){ 
-        $this->user = new UserModel();
-    } 
-    
     // 列表
     public function list() {
-        resp_success($this->user->getList());
+        $where['is_active'] ="Y";
+        resp_success($this->user->getList($where));
     }
 
     // 查询单个
@@ -29,20 +25,18 @@ class UserController extends RestController {
 
     // 新增 
     public function add() {
-        $params = $this->getUserParams();
+        $params = $this->_getUserParams();
         if ($params["username"] && $params["password"]) {
             // 实例化 User 对象
-            $User = M("User");
             $where['is_active'] ="Y";
             $where['username'] = $params['username'];
-            $data = $User->where($where)->find();
-            if ($data) {
+            $data = $this->user->getList($where);
+            if (count($data)) {
                 resp_error(1, "当前用户名已注册，请重新填写用户名!");
             } else {
                 $params["create_time"] = date("Y-m-d H:i:s");
                 $params["modify_time"] = date("Y-m-d H:i:s");
-                $lastId = $this->user->add($params);
-                $result = $this->user->getDetail($id);
+                $result = $this->user->addData($params);
                 json_out(100, "新增成功!", $result);
             }
         } else {
@@ -56,10 +50,7 @@ class UserController extends RestController {
         $id = I("id");
         $data["password"] = I("password");
         if ($id && $data["password"]) {
-            $User = M("User");
-            $User->where("id = {$id}")->save($data);
-    
-            $result = $this->detail($id);
+            $result = $this->user->updateData($id, $data);
             json_out(100, "更新成功!", $result);
         } else {
             $msg = $id ? "密码未填写！" : "ID未填写！";
@@ -71,15 +62,14 @@ class UserController extends RestController {
     public function delete() {
         $id = I("id");
         if ($id) {
-            $User = M("User");
-            $User->where("is_active = 'Y'")->delete($id);
+            $this->user->delete($id);
             json_out(100, "删除成功!", null);
         } else {
             $result = resp_error(1, "ID未填写");
         }
     }
 
-    private function getUserParams() {
+    private function _getUserParams() {
         $params['username'] = I("username");
 		$params['password'] = I("password");
 		return $params;
