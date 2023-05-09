@@ -30,3 +30,16 @@ function resp_success($data, $msg = "请求成功!") {
     echo json_encode($result);
     exit;
 }
+
+// 列表返回成功结果
+function resps_success($data, $page, $pageSize, $msg = "查询成功!") {
+    $result = array(
+        "code" => 100,
+        "msg" => $msg ,
+        "page" => $page,
+        "pageSize" => $pageSize,
+        "data" => $data
+    );
+    echo json_encode($result);
+    exit;
+}
