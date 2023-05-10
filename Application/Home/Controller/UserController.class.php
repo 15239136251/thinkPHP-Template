@@ -3,7 +3,6 @@ namespace Home\Controller;
 use Home\Controller\CommonController;
 
 class UserController extends CommonController {
-    private $keys = array('id', 'username');
 
     function _initialize() {
         parent::_initialize();
@@ -11,15 +10,17 @@ class UserController extends CommonController {
 
     // 列表
     public function list() {
-        $where['is_active'] ="Y";
+        $where = $this->_getUserListParams();
         $page['pageSize'] = I('pageSize') ? I('pageSize') : 10;
         $page['page'] = I('page') ? I('page') : 1;
-        resps_success($this->user->getList($where, $page), $page['page'], $page['pageSize']);
+        $keys = array('username', 'nick_name' => 'nickname');
+        resps_success($this->user->getList($where, $page, $keys), $page['page'], $page['pageSize']);
     }
 
     // 查询单个
     public function detail() {
         $id = I("id");
+        return;
         if ($id) {
             resp_success($this->user->getDetail($id));
         } else {
@@ -34,13 +35,14 @@ class UserController extends CommonController {
             // 实例化 User 对象
             $where['is_active'] ="Y";
             $where['username'] = $params['username'];
-            $data = $this->user->getList($where);
-            if (count($data)) {
+            $isexits = $this->user->getList($where);
+            if (count($isexits)) {
                 resp_error(1, "当前用户名已注册，请重新填写用户名!");
             } else {
-                $params["create_time"] = date("Y-m-d H:i:s");
-                $params["modify_time"] = date("Y-m-d H:i:s");
-                $result = $this->user->addData($params);
+                $data['username'] = $params['username'];
+                $data['password'] = $params['password'];
+                $data['nick_name'] = $params['nickname'] ? $params['nickname'] : $params['username'];
+                $result = $this->user->addData($data);
                 json_out(100, "新增成功!", $result);
             }
         } else {
@@ -66,7 +68,7 @@ class UserController extends CommonController {
     public function delete() {
         $id = I("id");
         if ($id) {
-            $this->user->delete($id);
+            $this->user->deletes($id);
             json_out(100, "删除成功!", null);
         } else {
             $result = resp_error(1, "ID未填写");
@@ -76,6 +78,18 @@ class UserController extends CommonController {
     private function _getUserParams() {
         $params['username'] = I("username");
 		$params['password'] = I("password");
+        $params['nickname'] = I("nickname");
 		return $params;
+    }
+
+    private function _getUserListParams() {
+        $params = array(
+            'is_active' => 'Y'
+        );
+        if (I('username')) $params['username'] = array('like', '%'.I('username').'%');
+        if (I('nickname')) $params['nick_name'] = array('like', '%'.I('nickname').'%');
+        if (I('dateStart')) $params['create_time'] = array('EGT', I('dateStart'));
+        if (I('dateEnd')) $params['create_time'] = array('ELT', I('dateEnd'));
+        return $params;
     }
 }

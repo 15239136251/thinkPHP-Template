@@ -4,7 +4,7 @@ use Think\Model;
 
 use Home\Model\CommonModel;
 class UserModel extends CommonModel{
-    protected $tableName = 'user';
+    protected $tableName = 'admin';
 
     public function getUserInfo($id) {
         return $id;

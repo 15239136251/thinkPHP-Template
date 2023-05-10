@@ -42,7 +42,7 @@ class IndexController extends CommonController {
 
 		$where['is_active'] ="Y";
 		$where['username'] = $params['username'];
-		$data = $this->user->getList($where);
+		$data = $this->user->getList($where, array('page' => 1, 'pageSize' => 10), array('password', 'username'));
 		
 		if (count($data)) {
 			// 有用户，判断密码是否一致

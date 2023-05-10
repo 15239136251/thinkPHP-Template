@@ -8,6 +8,7 @@ class CommonController extends RestController {
 	protected $allowMethod    = array('get','post','put'); // REST允许的请求类型列表
     protected $allowType      = array('html','xml','json'); // REST允许请求的资源类型列表
     protected $user;
+    protected $token;
     public function _initialize() {
         /*	*
           * 每次请求过来都会执行的方法
@@ -21,9 +22,16 @@ class CommonController extends RestController {
         );
         $noQuery = !strstr(__INFO__, 'list') && !strstr(__INFO__, 'detail');
         if (!in_array(__INFO__, $whitelist) && $noQuery) {
-            $this->checkToken();
+            $this->token = $this->checkToken();
         }
         $this->user = new UserModel();
+        if ($this->token) {
+            // 判断这个token内的用户是否存在，如果不存在就报错
+            $data = $this->user->getDetail($this->token['id']);
+            if (!$data) {
+                resp_error(0, '当前用户无效！'.$this->token['id']);
+            }
+        }
     }
     
     /**
