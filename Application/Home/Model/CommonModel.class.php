@@ -47,6 +47,7 @@ class CommonModel extends Model{
 
     function deletes($ids) {
         try {
+            $token = $this->checkToken();
             $where['id'] = array('exp',' IN ('.$ids.') ');
             $where['is_active'] = 'Y';
             $_data["modify_time"] = date("Y-m-d H:i:s");
