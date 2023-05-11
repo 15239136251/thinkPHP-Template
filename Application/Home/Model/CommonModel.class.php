@@ -4,17 +4,19 @@ use Think\Model;
 
 class CommonModel extends Model{
     function getList($where, $page = array('page' => 1, 'pageSize' => 10), $field = array()) {
-        $_field = array(
-            'id', 
-            'create_time', 
-            '(select username from admin a where a.id = create_id)' => 'create_name', 
-            'modify_time',
-            '(select username from admin a where a.id = modify_id)' => 'modify_name',
-        );
+        $_field = $this->getDefaultField();
+        $data = $this->field(array_merge($field, $_field))
+                    ->where($where)
+                    ->limit($page['pageSize'])
+                    ->page($page['page'])
+                    ->select();
+        return $data;
+    }
+
+    function noPage($where, $field = array()) {
+        $_field = $this->getDefaultField();
         $data = $this->field(array_merge($field, $_field))
                         ->where($where)
-                        ->limit($page['pageSize'])
-                        ->page($page['page'])
                         ->select();
         return $data;
     }
@@ -54,12 +56,20 @@ class CommonModel extends Model{
             $_data["modify_id"] = $token['id'];
             $_data["is_active"] = 'N';
             $this->where($where)->save($_data);
-            //code...
             return 1;
         } catch (\Throwable $th) {
-            //throw $th;
             return 0;
         }
+    }
+
+    private function getDefaultField() {
+        return  array(
+            'id', 
+            // 'create_time', 
+            // '(select username from admin a where a.id = create_id)' => 'create_name', 
+            // 'modify_time',
+            // '(select username from admin a where a.id = modify_id)' => 'modify_name',
+        );
     }
 
     private function getToken(){

@@ -6,6 +6,15 @@ class MenuController extends CommonController {
     protected $allowType      = array('html','xml','json'); // REST允许请求的资源类型列表
 
     public function index(){
-    
+        $data = $this->menu->noPage('', array('*'));
+        resp_success($data);
 	}
+
+    public function tree() {
+        $where['type'] = array('exp', "!= 'button'");
+        $data = $this->menu->noPage($where, array('*'));
+        
+        $tree = getTree($data);
+        resp_success($tree);
+    }
 }

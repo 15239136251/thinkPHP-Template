@@ -43,3 +43,53 @@ function resps_success($data, $page, $pageSize, $msg = "查询成功!") {
     echo json_encode($result);
     exit;
 }
+
+// 获取查询条件，如果没有则不返回
+function getParams($array = array()) {
+    $params = array();
+    foreach ($array as $type => $type_value) {
+        switch ($type) {
+            case 'like':
+                foreach ($type_value as $key => $value) {
+                    if (I($value)) $params[$value] = array('like', '%'.I($value).'%');
+                }
+                break;
+            case 'egt':
+                foreach ($type_value as $key => $value) {
+                    if (I($value)) $params[$value] = array('EGT', I($value));
+                }
+                break;
+            case 'elt':
+                foreach ($type_value as $key => $value) {
+                    if (I($value)) $params[$value] = array('ELT', I($value));
+                }
+                break;
+            case 'in':
+                foreach ($type_value as $key => $value) {
+                    if (I($value)) $params[$value] = array('exp',' IN ('.$value.') ');
+                }
+                break;
+            default:
+                foreach ($type_value as $key => $value) {
+                    if (I($value)) $params[$value] = I($value);
+                        else if ($value === 'is_active' || $value === 'isactive') $params['is_active'] = 'Y';
+                }
+                break;
+        }
+    }
+    return $params;
+}
+
+
+function getTree($array, $pid = 0, $level = 0) {
+    $data = array();
+    foreach ($array as $key => $value) {
+        # code...
+        if ($value['pid'] == $pid) {
+            $_value = $value;
+            $_value['children'] = getTree($array,$value['id']);
+            array_push($data, $_value);
+        }
+    }
+    return $data;
+}

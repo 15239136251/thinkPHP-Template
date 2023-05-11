@@ -1,0 +1,26 @@
+[ 2023-05-11T10:12:06+08:00 ] 127.0.0.1 /tp3/index.php/home/user/noPage
+ERR: 非法操作:noPage
+
+[ 2023-05-11T14:47:47+08:00 ] 127.0.0.1 /tp3/index.php/home/menu/index
+ERR: 1064:You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '10,`page` AS 1,`id`,`create_time`,(select username from admin a where a.id = cre' at line 1
+ [ SQL语句 ] : SELECT `pageSize` AS 10,`page` AS 1,`id`,`create_time`,(select username from admin a where a.id = create_id) AS `create_name`,`modify_time`,(select username from admin a where a.id = modify_id) AS `modify_name` FROM `qp_menu_rule` WHERE ( menu_type != null ) 
+
+[ 2023-05-11T14:48:20+08:00 ] 127.0.0.1 /tp3/index.php/home/menu/index
+ERR: 1054:Unknown column 'create_time' in 'field list'
+ [ SQL语句 ] : SELECT `id`,`create_time`,(select username from admin a where a.id = create_id) AS `create_name`,`modify_time`,(select username from admin a where a.id = modify_id) AS `modify_name` FROM `qp_menu_rule` WHERE ( menu_type != null ) 
+
+[ 2023-05-11T14:49:04+08:00 ] 127.0.0.1 /tp3/index.php/home/menu/index
+ERR: 1064:You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'null )' at line 1
+ [ SQL语句 ] : SELECT `id` FROM `qp_menu_rule` WHERE ( menu_type not null ) 
+
+[ 2023-05-11T14:50:17+08:00 ] 127.0.0.1 /tp3/index.php/home/menu/index
+ERR: 1054:Unknown column 'tab' in 'where clause'
+ [ SQL语句 ] : SELECT `id` FROM `qp_menu_rule` WHERE ( menu_type = tab ) 
+
+[ 2023-05-11T15:01:07+08:00 ] 127.0.0.1 /tp3/index.php/home/menu/index
+ERR: 1054:Unknown column 'button' in 'where clause'
+ [ SQL语句 ] : SELECT *,`id` FROM `qp_menu_rule` WHERE `type` != button 
+
+[ 2023-05-11T15:17:44+08:00 ] 127.0.0.1 /tp3/index.php/home/menu/index
+ERR: Using $this when not in object context
+

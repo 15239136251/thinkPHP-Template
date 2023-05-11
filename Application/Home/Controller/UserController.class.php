@@ -3,18 +3,28 @@ namespace Home\Controller;
 use Home\Controller\CommonController;
 
 class UserController extends CommonController {
+    private $fields = array(
+        'eq' => ['id', 'is_active'],
+        'like' => ['username', 'nickname'],
+        'egt' => ['dateStart'],
+        'elt' => ['dateEnd'],
+        'in' => []
+    );
 
-    function _initialize() {
-        parent::_initialize();
-    }
+    private $listKey = array('username', 'nick_name' => 'nickname');
 
-    // 列表
+    // 列表（分页）
     public function list() {
-        $where = $this->_getUserListParams();
+        $where = getParams($this->fields);
         $page['pageSize'] = I('pageSize') ? I('pageSize') : 10;
         $page['page'] = I('page') ? I('page') : 1;
-        $keys = array('username', 'nick_name' => 'nickname');
-        resps_success($this->user->getList($where, $page, $keys), $page['page'], $page['pageSize']);
+        resps_success($this->user->getList($where, $page, $listKey), $page['page'], $page['pageSize']);
+    }
+
+    // 列表（不分页）
+    public function noPage() {
+        $where = getParams($this->fields);
+        resp_success($this->user->noPage($where, $listKey));
     }
 
     // 查询单个
@@ -80,16 +90,5 @@ class UserController extends CommonController {
 		$params['password'] = I("password");
         $params['nickname'] = I("nickname");
 		return $params;
-    }
-
-    private function _getUserListParams() {
-        $params = array(
-            'is_active' => 'Y'
-        );
-        if (I('username')) $params['username'] = array('like', '%'.I('username').'%');
-        if (I('nickname')) $params['nick_name'] = array('like', '%'.I('nickname').'%');
-        if (I('dateStart')) $params['create_time'] = array('EGT', I('dateStart'));
-        if (I('dateEnd')) $params['create_time'] = array('ELT', I('dateEnd'));
-        return $params;
     }
 }

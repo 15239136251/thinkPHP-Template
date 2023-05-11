@@ -2,12 +2,14 @@
 namespace Home\Controller;
 use Think\Controller\RestController;
 use Home\Model\UserModel;
+use Home\Model\MenuModel;
 use Think\Request;
 
 class CommonController extends RestController {
 	protected $allowMethod    = array('get','post','put'); // REST允许的请求类型列表
     protected $allowType      = array('html','xml','json'); // REST允许请求的资源类型列表
     protected $user;
+    protected $menu;
     protected $token;
     public function _initialize() {
         /*	*
@@ -20,11 +22,11 @@ class CommonController extends RestController {
             'home/index/logout',
             'home/index/getCode'
         );
-        $noQuery = !strstr(__INFO__, 'list') && !strstr(__INFO__, 'detail');
-        if (!in_array(__INFO__, $whitelist) && $noQuery) {
+        if (!in_array(__INFO__, $whitelist)) {
             $this->token = $this->checkToken();
         }
         $this->user = new UserModel();
+        $this->menu = new MenuModel();
         if ($this->token) {
             // 判断这个token内的用户是否存在，如果不存在就报错
             $data = $this->user->getDetail($this->token['id']);
@@ -32,6 +34,7 @@ class CommonController extends RestController {
                 resp_error(0, '当前用户无效！'.$this->token['id']);
             }
         }
+        parent::_initialize();
     }
     
     /**
