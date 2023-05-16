@@ -9,4 +9,6 @@ class UserModel extends CommonModel{
     public function getUserInfo($id) {
         return $id;
     }
+
+   
 }

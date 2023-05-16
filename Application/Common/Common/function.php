@@ -11,10 +11,11 @@ function json_out($code = -1, $msg = "请求失败!", $data) {
 }
 
 // 返回错误结果
-function resp_error($code = -1, $msg = "请求失败!") {
+function resp_error($code = -1, $msg = '') {
+    $error = require "./Application/Common/Common/error.php";
     $result = array(
         "code" => $code,
-        "msg" => $msg
+        "msg" => $msg ? $msg : $error[$code],
     );
     echo json_encode($result);
     exit;

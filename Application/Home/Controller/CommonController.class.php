@@ -29,20 +29,13 @@ class CommonController extends RestController {
         $this->menu = new MenuModel();
         if ($this->token) {
             // 判断这个token内的用户是否存在，如果不存在就报错
-            $data = $this->user->getDetail($this->token['id']);
+            $data = $this->user->detail($this->token['id']);
             if (!$data) {
-                resp_error(0, '当前用户无效！'.$this->token['id']);
+                resp_error(-1, '当前用户无效！'.$this->token['id']);
             }
         }
         parent::_initialize();
     }
-    
-    /**
-     * 初始化函数
-     *
-     * @return void
-     */
-    
 
     protected function getToken(){
         if(function_exists('apache_request_headers')){

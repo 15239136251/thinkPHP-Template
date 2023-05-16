@@ -29,20 +29,23 @@ class IndexController extends CommonController {
 		$params['code'] = I("code");
 
 		if (!$params['username']) {
-			resp_error(0, "未输入账号!");
+			resp_error(-1, "未输入账号!");
 		}
 
 		if (!$params['password']) {
-			resp_error(0, "未输入密码!");
+			resp_error(-1, "未输入密码!");
 		}
 
 		if (!$params['code']) {
-			resp_error(0, "未输入验证码!");
+			resp_error(-1, "未输入验证码!");
 		}
 
 		$where['is_active'] ="Y";
 		$where['username'] = $params['username'];
-		$data = $this->user->getList($where, array('page' => 1, 'pageSize' => 10), array('password', 'username'));
+		$data = $this->user->list(array(
+			'where' => $where,
+			'field' => array('password', 'username')
+		));
 		
 		if (count($data)) {
 			// 有用户，判断密码是否一致
@@ -68,10 +71,10 @@ class IndexController extends CommonController {
 				);
 				resp_success($result, "登录成功!");
 			} else {
-				resp_error(0, "密码错误!");
+				resp_error(-1, "密码错误!");
 			}
 		} else {
-			resp_error(0, '当前用户不存在，无法登录!');
+			resp_error(-102, '当前用户不存在，无法登录!');
 		}
 	}
 

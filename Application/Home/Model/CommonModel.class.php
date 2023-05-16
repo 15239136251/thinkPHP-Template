@@ -3,27 +3,97 @@ namespace Home\Model;
 use Think\Model;
 
 class CommonModel extends Model{
-    function getList($where, $page = array('page' => 1, 'pageSize' => 10), $field = array()) {
-        $_field = $this->getDefaultField();
+    // 列表（分页）
+    function list($params) {
+        // 预处理
+        {
+            // 查询条件
+            $where = $params['where'] ? $params['where'] : array();
+            // 分页
+            $page = $params['page'] ? $params['page'] : 1;
+            // 分页数量
+            $pageSize = $params['pageSize'] ? $params['pageSize'] : 10;
+            // 一些默认要返回的字段，例如：id，修改时间，修改人，创建时间，创建人
+            $_field = $this->getDefaultField();
+            // 需要返回的其他字段
+            $field = $params['field'] ? $params['field'] : array('*');
+            // order 排序
+            $order = $params['order'] ? $params['order'] : array();
+            // group 分组
+            $group = $params['group'] ? $params['group'] : '';
+        }
+        // 查询数据库
         $data = $this->field(array_merge($field, $_field))
                     ->where($where)
-                    ->limit($page['pageSize'])
-                    ->page($page['page'])
+                    ->limit($pageSize)
+                    ->page($page)
+                    ->order($order)
+                    ->group($group)
                     ->select();
         return $data;
     }
 
-    function noPage($where, $field = array()) {
-        $_field = $this->getDefaultField();
+    // 列表（不分页）
+    function noPage($params) {
+        // 预处理
+        {
+            // 查询条件
+            $where = $params['where'] ? $params['where'] : array();
+            // 一些默认要返回的字段，例如：id，修改时间，修改人，创建时间，创建人
+            $_field = $this->getDefaultField();
+            // 需要返回的其他字段
+            $field = $params['field'] ? $params['field'] : array('*');
+            // order 排序
+            $order = $params['order'] ? $params['order'] : array();
+            // group 分组
+            $group = $params['group'] ? $params['group'] : '';
+        }
+        // 查询数据库
         $data = $this->field(array_merge($field, $_field))
-                        ->where($where)
-                        ->select();
+                    ->where($where)
+                    ->order($order)
+                    ->group($group)
+                    ->select();
         return $data;
     }
 
-    function getDetail($id) {
-        $data = $this->where("id = {$id} AND is_active = 'Y'")->find();
+    function detail($params) {
+        // 判断是否为数组，这样只是方便通过其他条件查询单个详情，并不需要非要通过id来进行查询
+        if (is_array($params)) {
+            $where = $params;
+        } else {
+            $where = array('id' => $params);
+        }
+        $data = $this->where($where)->find();
         return $data;
+    }
+
+     // 更新或保存数据
+     function saveData($type = 'add') {
+        $token = $this->checkToken();
+        $data = $this->create();
+        $data["modify_time"] = date("Y-m-d H:i:s");
+        $data["modify_id"] = $token['id'];
+        if(!$data){
+            return false;
+        }
+        if($type == 'add'){
+            $data["create_time"] = date("Y-m-d H:i:s");
+            $data["create_id"] = $token['id'];
+            $result = $this->add();
+            return $result;
+        }
+        if($type == 'edit'){
+            if(empty($data['id'])){
+                return false;
+            }
+            $status = $this->save();
+            if($status === false){
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     function addData($params) {
@@ -34,7 +104,7 @@ class CommonModel extends Model{
         $_data["modify_id"] = $token['id'];
         $this->create(array_merge($params, $_data));
         $lastId = $this->add();
-        $result = $this->getDetail($lastId);
+        $result = $this->detail($lastId);
         return $result;
     }
 
@@ -43,10 +113,11 @@ class CommonModel extends Model{
         $_data["modify_time"] = date("Y-m-d H:i:s");
         $_data["modify_id"] = $token['id'];
         $this->where("id = {$id}")->save(array_merge($data, $_data));
-        $result = $this->getDetail($id);
+        $result = $this->detail($id);
         return $result;
     }
 
+    // 删除数据（软删除）
     function deletes($ids) {
         try {
             $token = $this->checkToken();
@@ -62,13 +133,15 @@ class CommonModel extends Model{
         }
     }
 
+    // 删除数据（硬删除）
+
     private function getDefaultField() {
         return  array(
             'id', 
-            // 'create_time', 
-            // '(select username from admin a where a.id = create_id)' => 'create_name', 
-            // 'modify_time',
-            // '(select username from admin a where a.id = modify_id)' => 'modify_name',
+            'create_time', 
+            '(select username from admin a where a.id = create_id)' => 'create_name', 
+            'modify_time',
+            '(select username from admin a where a.id = modify_id)' => 'modify_name',
         );
     }
 
@@ -87,7 +160,7 @@ class CommonModel extends Model{
 		$jwt = new \Common\Utils\Jwt();
 		$verifyResult = $jwt->verifyToken($token);
 		if (!$verifyResult) {
-			resp_error(0, "登录失效，请重新登录!");
+			resp_error(-101, "登录失效，请重新登录!");
 		} else {
             return $verifyResult['claim'];
 		}

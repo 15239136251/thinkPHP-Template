@@ -11,30 +11,42 @@ class UserController extends CommonController {
         'in' => []
     );
 
-    private $listKey = array('username', 'nick_name' => 'nickname');
+    // 查询字段
+    private $getFields = array('username', 'nick_name' => 'nickname', 'is_active' => 'isactive');
 
     // 列表（分页）
     public function list() {
         $where = getParams($this->fields);
-        $page['pageSize'] = I('pageSize') ? I('pageSize') : 10;
-        $page['page'] = I('page') ? I('page') : 1;
-        resps_success($this->user->getList($where, $page, $listKey), $page['page'], $page['pageSize']);
+        $page = I('page') ? I('page') : 1;
+        $pageSize = I('pageSize') ? I('pageSize') : 10;
+        $params = array(
+            'where' => $where,
+            'page' => $page,
+            'pageSize' => $pageSize,
+            'field' => $this->getFields
+        );
+        $result = $this->user->list($params);
+        resps_success($result, $page['page'], $page['pageSize']);
     }
 
     // 列表（不分页）
     public function noPage() {
         $where = getParams($this->fields);
-        resp_success($this->user->noPage($where, $listKey));
+        $params = array(
+            'where' => $where,
+            'field' => $this->getFields
+        );
+        $result = $this->user->noPage($params);
+        resp_success($result);
     }
 
     // 查询单个
     public function detail() {
         $id = I("id");
-        return;
         if ($id) {
-            resp_success($this->user->getDetail($id));
+            resp_success($this->user->detail($id));
         } else {
-            resp_error(0, "请传递需要查询的id");
+            resp_error(-1, "请传递需要查询的id");
         }
     }
 
@@ -47,7 +59,7 @@ class UserController extends CommonController {
             $where['username'] = $params['username'];
             $isexits = $this->user->getList($where);
             if (count($isexits)) {
-                resp_error(1, "当前用户名已注册，请重新填写用户名!");
+                resp_error(-1, "当前用户名已注册，请重新填写用户名!");
             } else {
                 $data['username'] = $params['username'];
                 $data['password'] = $params['password'];
@@ -57,7 +69,7 @@ class UserController extends CommonController {
             }
         } else {
             $msg = $params->username ? "密码未填写！" : "用户名未填写！";
-            $result = resp_error(1, $msg);
+            $result = resp_error(-1, $msg);
         }
     }
 
@@ -70,7 +82,7 @@ class UserController extends CommonController {
             json_out(100, "更新成功!", $result);
         } else {
             $msg = $id ? "密码未填写！" : "ID未填写！";
-            $result = resp_error(1, $msg);
+            $result = resp_error(-1, $msg);
         }
     }
 
@@ -81,8 +93,14 @@ class UserController extends CommonController {
             $this->user->deletes($id);
             json_out(100, "删除成功!", null);
         } else {
-            $result = resp_error(1, "ID未填写");
+            $result = resp_error(-1, "ID未填写");
         }
+    }
+
+    // 测试
+    public function test() {
+        $result = $this->user->saveData('edit');
+        json_out(100, "测试结果!", $result);
     }
 
     private function _getUserParams() {
