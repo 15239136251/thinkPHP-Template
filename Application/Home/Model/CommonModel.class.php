@@ -57,14 +57,13 @@ class CommonModel extends Model{
         return $data;
     }
 
+    // 详情
     function detail($params) {
-        // 判断是否为数组，这样只是方便通过其他条件查询单个详情，并不需要非要通过id来进行查询
-        if (is_array($params)) {
-            $where = $params;
-        } else {
-            $where = array('id' => $params);
-        }
-        $data = $this->where($where)->find();
+        $where = array('id' => $params['id']);
+        $_field = $this->getDefaultField();
+        // 需要返回的其他字段
+        $field = $params['field'] ? $params['field'] : array('*');
+        $data = $this->field(array_merge($field, $_field))->where($where)->find();
         return $data;
     }
 

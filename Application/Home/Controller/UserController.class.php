@@ -44,7 +44,10 @@ class UserController extends CommonController {
     public function detail() {
         $id = I("id");
         if ($id) {
-            resp_success($this->user->detail($id));
+            $params = array(
+                'id' => $id
+            );
+            resp_success($this->user->detail($params));
         } else {
             resp_error(-1, "请传递需要查询的id");
         }
@@ -68,7 +71,7 @@ class UserController extends CommonController {
                 json_out(100, "新增成功!", $result);
             }
         } else {
-            $msg = $params->username ? "密码未填写！" : "用户名未填写！";
+            $msg = $params['username'] ? "密码未填写！" : "用户名未填写！";
             $result = resp_error(-1, $msg);
         }
     }
