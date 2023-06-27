@@ -6,7 +6,7 @@ return array(
 'DB_Name'=>'my_admin_test',
 'DB_USER'=>'root',
 'DB_PWD'=>'quhaibin',
-'DB_PREFIX'=>'',
+'DB_PREFIX'=>'qhb_',
 'SHOW_PAGE_TRACE'=>true,
 'DB_PORT'=>'3306',
 );
